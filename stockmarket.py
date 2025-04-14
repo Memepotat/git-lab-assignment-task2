@@ -5,12 +5,12 @@ import pandas as pd
 from st_click_detector import click_detector
 
 # Ideas for improvement:
-# 1. Add more stock tickers to the list.  #E
-# 2. Allow users to input a custom date range for the stock data. #E
-# 3. Allow users to provide their own tickers, with error handling for tickers not in the S&P500. (Remove the ability to click on the icons) #M
-# 4. Show information about the stock (e.g., market cap, P/E ratio) alongside the chart. #M
-# 5. Investment portfolio tracker: Allow users to input multiple stocks and return their portfolio's current worth. #H
-# 6. Add a news section to show the latest news related to the selected stock (you can use the news attribute of yfinance.Ticker). #H
+# 1. Add more stock tickers to the list.  #E #?Nikos
+# 2. Allow users to input a custom date range for the stock data. #E #?Philip
+# 3. Allow users to provide their own tickers, with error handling for tickers not in the S&P500. (Remove the ability to click on the icons) #M #? Nikos
+# 4. Show information about the stock (e.g., market cap, P/E ratio) alongside the chart. #M #? Philip
+# 5. Investment portfolio tracker: Allow users to input multiple stocks and return their portfolio's current worth. #H #?Niks
+# 6. Add a news section to show the latest news related to the selected stock (you can use the news attribute of yfinance.Ticker). #H #?Philip
 
 # Create the images as a href elements with tickers as IDs
 def show_tickers():
