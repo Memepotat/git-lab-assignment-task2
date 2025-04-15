@@ -13,13 +13,6 @@ from datetime import datetime
 # 5. Investment portfolio tracker: Allow users to input multiple stocks and return their portfolio's current worth. #H #?Niks
 # 6. Add a news section to show the latest news related to the selected stock (you can use the news attribute of yfinance.Ticker). #H #?Philip
 
-# Create the images as a href elements with tickers as IDs
-import streamlit as st
-import plotly.graph_objects as go
-import yfinance as yf
-import pandas as pd
-from st_click_detector import click_detector
-from datetime import datetime
 
 # Create the images as a href elements with tickers as IDs
 def show_tickers():
@@ -82,6 +75,63 @@ def show_stock_info(ticker):
         - **Market Cap:** {market_cap:,}  
         - **P/E Ratio:** {pe_ratio}  
     """)
+    
+# News Section
+def show_stock_news(ticker):
+    stock = yf.Ticker(ticker)
+    news_items = stock.news
+
+    if not news_items:
+        st.info("No news available for this ticker.")
+        return
+
+    st.subheader("📰 Latest News")
+    
+    # Filter valid articles first
+    valid_articles = []
+    for article in news_items:
+        if "content" in article:
+            content = article.get("content", {})
+            title = content.get("title", "News Update")
+            valid_articles.append(title)
+    
+    # Create rows with 3 columns per row
+    total_articles = min(len(valid_articles), 6)  
+    
+    # Calculate number of rows needed 
+    rows_needed = (total_articles + 2) // 3  # +2 for ceiling division
+    
+    for row in range(rows_needed):
+        # Create a row with 3 equal columns
+        cols = st.columns(3)
+        
+        # Add cards to this row
+        for col in range(3):
+            idx = row * 3 + col
+            if idx < total_articles:
+                with cols[col]:
+                    st.markdown(f"""
+                    <div style="
+                        padding: 15px; 
+                        border-radius: 5px; 
+                        border: 1px solid rgba(49, 51, 63, 0.2);
+                        margin-bottom: 15px;
+                        background-color: rgba(49, 51, 63, 0.1);
+                        min-height: 100px;
+                        overflow: hidden;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+                        display: flex;
+                        align-items: center;
+                        height: 120px;
+                    ">
+                        <span style='color: #ffffff;'><strong>{valid_articles[idx]}</strong></span>
+                    </div>
+                    """, unsafe_allow_html=True)
+    
+    if total_articles == 0:
+        st.info("No valid news articles found for this ticker.")
+
+
 
 # Main Streamlit app
 ticker = get_ticker()
@@ -103,3 +153,4 @@ if ticker != "":
 
         show_plot(fig)         
         show_stock_info(ticker)  
+        show_stock_news(ticker)
