@@ -132,7 +132,17 @@ def show_stock_news(ticker):
 
 
 # Main Streamlit app
-ticker = get_ticker()
+tickers_list = load_sp500_tickers()
+user_input = st.text_input("Enter a stock ticker (e.g., AAPL, MSFT):").upper()
+
+if user_input:
+    if user_input in tickers_list:
+        ticker = user_input
+    else:
+        st.error("Ticker not found in S&P500 list. Please check your input.")
+        ticker = ""
+else:
+    ticker = ""
 
 if ticker != "":
     current_year = datetime.now().year
