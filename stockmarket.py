@@ -14,19 +14,17 @@ from datetime import datetime
 # 6. Add a news section to show the latest news related to the selected stock (you can use the news attribute of yfinance.Ticker). #H #?Philip Done
 
 
-# Create the images as a href elements with tickers as IDs
-def show_tickers():
-    content = """
-        <a href='#' id='MSFT'><img height='60px' width='60px' src='https://banner2.cleanpng.com/20180609/jq/aa8dbj2or.webp'></a>
-        <a href='#' id='AAPL'><img height='60px' width='60px' src='https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg'></a>
-    """
-    return content
+@st.cache_data
+def load_sp500_tickers():
+    url = "https://gist.githubusercontent.com/ZeccaLehn/f6a2613b24c393821f81c0c1d23d4192/raw/fe4638cc5561b9b261225fd8d2a9463a04e77d19/SP500.csv"
+    df = pd.read_csv(url)
+    return df["Symbol"].tolist()
 
 # Make the images clickable using st_click_detector
 def get_ticker():
-    content = show_tickers()
-    clicked = click_detector(content)
-    return clicked
+    tickers = load_sp500_tickers()
+    ticker = st.selectbox("Select a ticker from S&P500:", sorted(tickers))
+    return ticker
 
 # Get the stock dataframe for the given ticker using yfinance
 def get_dataframe(ticker):
