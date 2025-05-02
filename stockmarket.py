@@ -58,9 +58,14 @@ def get_dataframe_with_dates(ticker, start_date, end_date):
 def show_stock_info(ticker):
     stock = yf.Ticker(ticker)
     info = stock.info
+    market_cap = info.get("marketCap", "N/A")
 
     # Extract key info safely
-    market_cap = info.get("marketCap", "N/A")
+    if isinstance(market_cap, (int, float)):
+        market_cap_str = f"{market_cap:,}"
+    else:
+        market_cap_str = market_cap
+
     pe_ratio = info.get("trailingPE", "N/A")
     name = info.get("shortName", ticker)
     sector = info.get("sector", "N/A")
@@ -70,7 +75,7 @@ def show_stock_info(ticker):
     st.markdown(f"""
         - **Sector:** {sector}  
         - **Industry:** {industry}  
-        - **Market Cap:** {market_cap:,}  
+        - **Market Cap:** {market_cap_str}  
         - **P/E Ratio:** {pe_ratio}  
     """)
     
