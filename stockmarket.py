@@ -13,7 +13,7 @@ from datetime import datetime
 # 5. Investment portfolio tracker: Allow users to input multiple stocks and return their portfolio's current worth. #H #?Niks
 # 6. Add a news section to show the latest news related to the selected stock (you can use the news attribute of yfinance.Ticker). #H #?Philip Done
 
-
+# IDEA 1: Load full S&P500 list
 @st.cache_data
 def load_sp500_tickers():
     url = "https://gist.githubusercontent.com/ZeccaLehn/f6a2613b24c393821f81c0c1d23d4192/raw/fe4638cc5561b9b261225fd8d2a9463a04e77d19/SP500.csv"
@@ -138,6 +138,8 @@ def show_stock_news(ticker):
 
 # Main Streamlit app
 tickers_list = load_sp500_tickers()
+
+#IDEA 3: User-provided tickers with validation
 user_input = st.text_input("Enter a stock ticker (e.g., AAPL, MSFT):").upper()
 
 if user_input:
@@ -149,6 +151,7 @@ if user_input:
 else:
     ticker = ""
 
+#If ticker is valid, show info
 if ticker != "":
     current_year = datetime.now().year
     start_date_default = datetime(current_year, 1, 1)
@@ -167,3 +170,68 @@ if ticker != "":
         show_plot(fig)         
         show_stock_info(ticker)  
         show_stock_news(ticker)
+
+# IDEA 5: Portfolio Tracker
+st.header("📊 Portfolio Tracker")
+
+portfolio_input = st.text_area(
+    "Enter your portfolio (format: TICKER: quantity, one per line):",
+    placeholder="AAPL: 10\nMSFT: 5\nGOOGL: 8"
+)
+
+portfolio = []
+
+if portfolio_input:
+    lines = portfolio_input.strip().split("\n")
+    for line in lines:
+        try:
+            ticker_raw, quantity_raw = line.split(":")
+            ticker = ticker_raw.strip().upper()
+            quantity = int(quantity_raw.strip())
+            portfolio.append((ticker, quantity))
+        except ValueError:
+            st.error(f"Line format error: '{line}'. Use TICKER: quantity.")
+
+if portfolio:
+    results = []
+    total_value = 0
+
+    for ticker, quantity in portfolio:
+        try:
+            price = yf.Ticker(ticker).fast_info["lastPrice"]
+            subtotal = round(price * quantity, 2)
+            total_value += subtotal
+            results.append({
+                "Ticker": ticker,
+                "Shares": quantity,
+                "Price": round(price, 2),
+                "Value": subtotal
+            })
+        except Exception as e:
+            st.warning(f"Could not fetch price for {ticker}: {e}")
+
+    # Display as DataFrame
+    if results:
+        st.subheader("📈 Portfolio Breakdown")
+        df_results = pd.DataFrame(results)
+        st.dataframe(df_results)
+
+        st.success(f"💵 Total Portfolio Value: ${round(total_value, 2):,.2f}")
+
+        # Pie chart
+        labels = [item["Ticker"] for item in results]
+        values = [item["Value"] for item in results]
+
+        fig = go.Figure(data=[go.Pie(
+            labels=labels,
+            values=values,
+            hole=0.4,
+            marker=dict(line=dict(color='white', width=2))
+        )])
+
+        fig.update_layout(
+            title="💼 Portfolio Allocation",
+            margin=dict(t=50, b=0, l=0, r=0)
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
